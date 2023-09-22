@@ -18,20 +18,28 @@ import vn.edu.iuh.fit.labweek01.modules.Status;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
 
-@WebServlet(name = "controlServlet", urlPatterns = "/controlServlet")
+@WebServlet(name = "controlServlet", urlPatterns = {"/controlServlet", "/frontend/login/controlServlet"})
 public class ControlServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String action = req.getParameter("action");
         RoleDAO roleDAO = new RoleDAO();
         AccountDAO accountDAO = new AccountDAO();
-        GrantAccessDAO grantAccessDAO = new GrantAccessDAO();
+        GrantAccessDAO grantAccessDAO = null;
+        try {
+            grantAccessDAO = new GrantAccessDAO();
+        } catch (ClassNotFoundException | SQLException e) {
+            throw new RuntimeException(e);
+        }
 
         switch (action) {
             case "listRole":
@@ -40,7 +48,7 @@ public class ControlServlet extends HttpServlet {
                     req.setAttribute("listRole", listRole);
                     RequestDispatcher dispatcher = req.getRequestDispatcher("/frontend/role/RolePage.jsp");
                     dispatcher.forward(req, resp);
-                } catch (ClassNotFoundException | SQLException e) {
+                } catch (SQLException | ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
                 break;
@@ -60,17 +68,15 @@ public class ControlServlet extends HttpServlet {
                     if (res) {
                         resp.sendRedirect("controlServlet?action=listRole");
                         //show toast delete success
-                        PrintWriter out = resp.getWriter();
-                        out.println("<script type=\"text/javascript\">");
-                        out.println("alert('Delete success');");
-                        out.println("location='controlServlet?action=listRole';");
-                        out.println("</script>");
+                        resp.getWriter().println("<script type=\"text/javascript\">");
+                        resp.getWriter().println("alert('Delete success');");
+                        resp.getWriter().println("location='controlServlet?action=listRole';");
+                        resp.getWriter().println("</script>");
                     } else {
-                        PrintWriter out = resp.getWriter();
-                        out.println("<script type=\"text/javascript\">");
-                        out.println("alert('Delete failed');");
-                        out.println("location='controlServlet?action=listRole';");
-                        out.println("</script>");
+                        resp.getWriter().println("<script type=\"text/javascript\">");
+                        resp.getWriter().println("alert('Delete failed');");
+                        resp.getWriter().println("location='controlServlet?action=listRole';");
+                        resp.getWriter().println("</script>");
                     }
                 } catch (SQLException | ClassNotFoundException e) {
                     throw new RuntimeException(e);
@@ -89,7 +95,8 @@ public class ControlServlet extends HttpServlet {
                     String accountId = "";
                     for (Cookie cookie : cookies) {
                         if (cookie.getName().equals("account_id")) {
-                            accountId = cookie.getValue();
+                            accountId = URLDecoder.decode(cookie.getValue(), StandardCharsets.UTF_8);
+                            break;
                         }
                     }
                     //get role of account
@@ -108,7 +115,8 @@ public class ControlServlet extends HttpServlet {
                 String accountId = "";
                 for (Cookie cookie : cookies) {
                     if (cookie.getName().equals("account_id")) {
-                        accountId = cookie.getValue();
+                        accountId = URLDecoder.decode(cookie.getValue(), StandardCharsets.UTF_8);
+                        break;
                     }
                 }
                 //update logout_time
@@ -118,16 +126,14 @@ public class ControlServlet extends HttpServlet {
                 log.setNotes("logout");
                 try {
                     boolean res = new LogDAO().update(log);
-                } catch (SQLException | ClassNotFoundException e) {
+                } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
 
-                if (cookies != null) {
-                    // Lặp qua từng cookie và đặt thời gian sống của nó thành 0 để xóa cookie
-                    for (Cookie cookie : cookies) {
-                        cookie.setMaxAge(0);
-                        resp.addCookie(cookie);
-                    }
+                // Lặp qua từng cookie và đặt thời gian sống của nó thành 0 để xóa cookie
+                for (Cookie cookie : cookies) {
+                    cookie.setMaxAge(0);
+                    resp.addCookie(cookie);
                 }
 
                 RequestDispatcher dispatcher = req.getRequestDispatcher("/frontend/login/LoginPage.jsp");
@@ -155,27 +161,25 @@ public class ControlServlet extends HttpServlet {
             }
             case "deleteAccount":
                 if (req.getParameter("id").equals(req.getCookies()[0].getValue())) {
-                    PrintWriter out = resp.getWriter();
-                    out.println("<script type=\"text/javascript\">");
-                    out.println("alert('Can not delete account login');");
-                    out.println("location='controlServlet?action=listAccount';");
-                    out.println("</script>");
-                }
-                boolean res = accountDAO.deleteAccount(String.valueOf(req.getParameter("id")));
-                if (res) {
-                    resp.sendRedirect("controlServlet?action=listAccount");
-                    //show toast delete success
-                    PrintWriter out = resp.getWriter();
-                    out.println("<script type=\"text/javascript\">");
-                    out.println("alert('Delete success');");
-                    out.println("location='controlServlet?action=listAccount';");
-                    out.println("</script>");
+                    resp.getWriter().println("<script type=\"text/javascript\">");
+                    resp.getWriter().println("alert('Can not delete account login');");
+                    resp.getWriter().println("location='controlServlet?action=listAccount';");
+                    resp.getWriter().println("</script>");
                 } else {
-                    PrintWriter out = resp.getWriter();
-                    out.println("<script type=\"text/javascript\">");
-                    out.println("alert('Delete failed');");
-                    out.println("location='controlServlet?action=listAccount';");
-                    out.println("</script>");
+                    boolean res = accountDAO.deleteAccount(String.valueOf(req.getParameter("id")));
+                    if (res) {
+                        resp.sendRedirect("controlServlet?action=listAccount");
+                        //show toast delete success
+                        resp.getWriter().println("<script type=\"text/javascript\">");
+                        resp.getWriter().println("alert('Delete success');");
+                        resp.getWriter().println("location='controlServlet?action=listAccount';");
+                        resp.getWriter().println("</script>");
+                    } else {
+                        resp.getWriter().println("<script type=\"text/javascript\">");
+                        resp.getWriter().println("alert('Delete failed');");
+                        resp.getWriter().println("location='controlServlet?action=listAccount';");
+                        resp.getWriter().println("</script>");
+                    }
                 }
                 break;
             case "addAccount": {
@@ -189,10 +193,12 @@ public class ControlServlet extends HttpServlet {
                     req.setAttribute("listLog", listLog);
                     RequestDispatcher dispatcher = req.getRequestDispatcher("/frontend/log/LogPage.jsp");
                     dispatcher.forward(req, resp);
-                } catch (SQLException | ClassNotFoundException e) {
+                } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
                 break;
+            default:
+                throw new IllegalArgumentException("Invalid action: " + action);
         }
     }
 
@@ -201,177 +207,178 @@ public class ControlServlet extends HttpServlet {
         String action = req.getParameter("action");
         AccountDAO accountDAO = new AccountDAO();
         RoleDAO roleDAO = new RoleDAO();
-        GrantAccessDAO grantAccessDAO = new GrantAccessDAO();
+        GrantAccessDAO grantAccessDAO;
+        try {
+            grantAccessDAO = new GrantAccessDAO();
+        } catch (ClassNotFoundException | SQLException e) {
+            throw new RuntimeException(e);
+        }
         LogDAO logDAO = new LogDAO();
 
-        if (action.equals("logon")) {
-            try {
-                Optional<Account> account = accountDAO.logonAccount(req.getParameter("email"),
-                        req.getParameter("password"));
-                //if account is not exist
-                if (account.isEmpty()) {
-                    PrintWriter out = resp.getWriter();
-                    out.println("<script type=\"text/javascript\">");
-                    out.println("alert('Account is not exist');");
-                    out.println("location='index.jsp';");
-                    out.println("</script>");
-                } else {
-                    System.out.println(account);
-                    Log log = new Log();
-                    log.setAccount_id(account.get());
-                    //yyyy mm dd hh:mm:ss
-                    log.setLogin_time(new Date(System.currentTimeMillis()));
-                    log.setNotes("login");
-                    logDAO.create(log);
-                    //save account to cookie
-                    Cookie account_id = new Cookie("account_id", account.get().getAccount_id());
-                    Cookie full_name = new Cookie("full_name", account.get().getFull_name());
-                    Cookie email = new Cookie("email", account.get().getEmail());
-                    Cookie phone = new Cookie("phone", account.get().getPhone());
-                    Cookie status = new Cookie("status", account.get().getStatus().toString());
-                    resp.addCookie(account_id);
-                    resp.addCookie(full_name);
-                    resp.addCookie(email);
-                    resp.addCookie(phone);
-                    resp.addCookie(status);
-                    //information of account
+        switch (action) {
+            case "logon":
+                try {
+                    Optional<Account> account = accountDAO.logonAccount(req.getParameter("email"),
+                            req.getParameter("password"));
+                    if (account.isEmpty()) {
+                        PrintWriter out = resp.getWriter();
+                        out.println("<script type=\"text/javascript\">");
+                        out.println("alert('Account does not exist');");
+                        out.println("location='LoginPage.jsp';");
+                        out.println("</script>");
+                    } else {
+                        Log log = new Log();
+                        log.setLogout_time(null);
+                        log.setAccount_id(account.get());
+                        log.setLogin_time(new Date(System.currentTimeMillis()));
+                        log.setNotes("login");
+                        logDAO.create(log);
 
-                    // redirect dashboard and info account
-                    req.setAttribute("account", account.get());
-                    RequestDispatcher dispatcher = req.getRequestDispatcher("/frontend/dashboard/DashboardPage.jsp");
-                    dispatcher.forward(req, resp);
+                        Cookie account_id = new Cookie("account_id", account.get().getAccount_id());
+                        Cookie full_name = new Cookie("full_name", URLEncoder.encode(account.get().getFull_name(), StandardCharsets.UTF_8));
+                        Cookie email = new Cookie("email", account.get().getEmail());
+                        Cookie phone = new Cookie("phone", account.get().getPhone());
+                        Cookie status = new Cookie("status", account.get().getStatus().toString());
+                        resp.addCookie(account_id);
+                        resp.addCookie(full_name);
+                        resp.addCookie(email);
+                        resp.addCookie(phone);
+                        resp.addCookie(status);
+
+                        req.setAttribute("account", account.get());
+                        RequestDispatcher dispatcher = req.getRequestDispatcher("/frontend/dashboard/DashboardPage.jsp");
+                        dispatcher.forward(req, resp);
+                    }
+                } catch (SQLException | ServletException e) {
+                    throw new RuntimeException(e);
                 }
-            } catch (SQLException | ClassNotFoundException | ServletException e) {
-                throw new RuntimeException(e);
-            }
-        } else if (action.equals("register")) {
-            Account account = new Account();
-            account.setAccount_id(req.getParameter("accountId"));
-            account.setPassword(req.getParameter("password"));
-            account.setFull_name(req.getParameter("fullName"));
-            getAccountInfo(req, account);
-            boolean res = false;
-            res = accountDAO.createAccount(account);
-            if (res) {
-                PrintWriter out = resp.getWriter();
-                out.println("<script type=\"text/javascript\">");
-                out.println("alert('Register success');");
-                out.println("location='index.jsp';");
-                out.println("</script>");
-            } else {
-                PrintWriter out = resp.getWriter();
-                out.println("<script type=\"text/javascript\">");
-                out.println("alert('Register failed');");
-                out.println("location='register.jsp';");
-                out.println("</script>");
-            }
-        } else if (action.equals("editRole")) {
-            Role role = new Role();
-            role.setRole_id(req.getParameter("role_id"));
-            role.setRole_name(req.getParameter("role_name"));
-            role.setDescription(req.getParameter("description"));
-            if (req.getParameter("status").equals("1")) {
-                role.setStatus(Status.ACTIVE);
-            } else if (req.getParameter("status").equals("0")) {
-                role.setStatus(Status.DEACTIVATE);
-            } else {
-                role.setStatus(Status.DELETED);
-            }
-            try {
-                boolean res = roleDAO.update(role);
+                break;
+            case "register": {
+                Account account = new Account();
+                account.setAccount_id(req.getParameter("accountId"));
+                account.setPassword(req.getParameter("password"));
+                account.setFull_name(req.getParameter("fullName"));
+                getAccountInfo(req, account);
+                boolean res = accountDAO.createAccount(account);
                 if (res) {
-                    resp.sendRedirect("controlServlet?action=listRole");
+                    PrintWriter out = resp.getWriter();
+                    out.println("<script type=\"text/javascript\">");
+                    out.println("alert('Register success');");
+                    out.println("location='LoginPage.jsp';");
+                    out.println("</script>");
                 } else {
                     PrintWriter out = resp.getWriter();
                     out.println("<script type=\"text/javascript\">");
-                    out.println("alert('Update failed');");
-                    out.println("location='controlServlet?action=listRole';");
+                    out.println("alert('Register failed');");
+                    out.println("location='RegisterPage.jsp';");
                     out.println("</script>");
                 }
-            } catch (SQLException | ClassNotFoundException e) {
-                throw new RuntimeException(e);
+                break;
             }
-        } else if (action.equals("addRole")) {
-            Role role = new Role();
-            role.setRole_id(req.getParameter("role_id"));
-            role.setRole_name(req.getParameter("role_name"));
-            role.setDescription(req.getParameter("description"));
-            if (req.getParameter("status").equals("1")) {
-                role.setStatus(Status.ACTIVE);
-            } else if (req.getParameter("status").equals("0")) {
-                role.setStatus(Status.DEACTIVATE);
-            } else {
-                role.setStatus(Status.DELETED);
+            case "editRole": {
+                Role role = new Role();
+                role.setRole_id(req.getParameter("role_id"));
+                role.setRole_name(req.getParameter("role_name"));
+                role.setDescription(req.getParameter("description"));
+                role.setStatus(Status.valueOf(req.getParameter("status")));
+                try {
+                    boolean res = roleDAO.update(role);
+                    if (res) {
+                        resp.sendRedirect("controlServlet?action=listRole");
+                    } else {
+                        PrintWriter out = resp.getWriter();
+                        out.println("<script type=\"text/javascript\">");
+                        out.println("alert('Update failed');");
+                        out.println("location='controlServlet?action=listRole';");
+                        out.println("</script>");
+                    }
+                } catch (SQLException | ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
             }
-            try {
-                boolean res = roleDAO.add(role);
+            case "addRole": {
+                Role role = new Role();
+                role.setRole_id(req.getParameter("role_id"));
+                role.setRole_name(req.getParameter("role_name"));
+                role.setDescription(req.getParameter("description"));
+                role.setStatus(Status.valueOf(req.getParameter("status")));
+                try {
+                    boolean res = roleDAO.add(role);
+                    if (res) {
+                        resp.sendRedirect("controlServlet?action=listRole");
+                    } else {
+                        PrintWriter out = resp.getWriter();
+                        out.println("<script type=\"text/javascript\">");
+                        out.println("alert('Add failed');");
+                        out.println("location='controlServlet?action=listRole';");
+                        out.println("</script>");
+                    }
+                } catch (SQLException | ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            }
+            case "addAccount": {
+                Account account = new Account();
+                account.setAccount_id(req.getParameter("account_id"));
+                account.setPassword(req.getParameter("password"));
+                account.setFull_name(req.getParameter("full_name"));
+                getAccountInfo(req, account);
+                boolean res = accountDAO.createAccount(account);
                 if (res) {
-                    resp.sendRedirect("controlServlet?action=listRole");
+                    resp.sendRedirect("controlServlet?action=listAccount");
                 } else {
                     PrintWriter out = resp.getWriter();
                     out.println("<script type=\"text/javascript\">");
                     out.println("alert('Add failed');");
-                    out.println("location='controlServlet?action=listRole';");
-                    out.println("</script>");
-                }
-            } catch (SQLException | ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-        } else if (action.equals("addAccount")) {
-            Account account = new Account();
-            account.setAccount_id(req.getParameter("account_id"));
-            account.setPassword(req.getParameter("password"));
-            account.setFull_name(req.getParameter("full_name"));
-            getAccountInfo(req, account);
-            boolean res = accountDAO.createAccount(account);
-            if (res) {
-                resp.sendRedirect("controlServlet?action=listAccount");
-            } else {
-                PrintWriter out = resp.getWriter();
-                out.println("<script type=\"text/javascript\">");
-                out.println("alert('Add failed');");
-                out.println("location='controlServlet?action=listAccount';");
-                out.println("</script>");
-            }
-        } else if (action.equals("editAccount")) {
-            Account account = new Account();
-            account.setAccount_id(req.getParameter("account_id"));
-            account.setPassword(req.getParameter("password"));
-            account.setFull_name(req.getParameter("full_name"));
-            getAccountInfo(req, account);
-            boolean res = accountDAO.updateAccount(account, account.getAccount_id());
-            if (res) {
-                resp.sendRedirect("controlServlet?action=listAccount");
-            } else {
-                PrintWriter out = resp.getWriter();
-                out.println("<script type=\"text/javascript\">");
-                out.println("alert('Update failed');");
-                out.println("location='controlServlet?action=listAccount';");
-                out.println("</script>");
-            }
-        } else if (action.equals("grantPermission")) {
-            try {
-                boolean res = grantAccessDAO.grantPermission(req.getParameter("accountId"),
-                        req.getParameter("roleIds"),
-                        req.getParameter("grantType"),
-                        req.getParameter("note"));
-                if (res) {
-                    resp.sendRedirect("controlServlet?action=listAccount");
-                    PrintWriter out = resp.getWriter();
-                    out.println("<script type=\"text/javascript\">");
-                    out.println("alert('Grant success');");
                     out.println("location='controlServlet?action=listAccount';");
                     out.println("</script>");
+                }
+                break;
+            }
+            case "editAccount": {
+                Account account = new Account();
+                account.setAccount_id(req.getParameter("account_id"));
+                account.setPassword(req.getParameter("password"));
+                account.setFull_name(req.getParameter("full_name"));
+                getAccountInfo(req, account);
+                boolean res = accountDAO.updateAccount(account, account.getAccount_id());
+                if (res) {
+                    resp.sendRedirect("controlServlet?action=listAccount");
                 } else {
                     PrintWriter out = resp.getWriter();
                     out.println("<script type=\"text/javascript\">");
-                    out.println("alert('Grant failed');");
+                    out.println("alert('Update failed');");
                     out.println("location='controlServlet?action=listAccount';");
                     out.println("</script>");
                 }
-            } catch (SQLException | ClassNotFoundException e) {
-                throw new RuntimeException(e);
+                break;
             }
+            case "grantPermission":
+                try {
+                    boolean res = grantAccessDAO.grantPermission(req.getParameter("accountId"),
+                            req.getParameter("roleIds"),
+                            req.getParameter("grantType"),
+                            req.getParameter("note"));
+                    if (res) {
+                        resp.sendRedirect("controlServlet?action=listAccount");
+                        PrintWriter out = resp.getWriter();
+                        out.println("<script type=\"text/javascript\">");
+                        out.println("alert('Grant success');");
+                        out.println("location='controlServlet?action=listAccount';");
+                        out.println("</script>");
+                    } else {
+                        PrintWriter out = resp.getWriter();
+                        out.println("<script type=\"text/javascript\">");
+                        out.println("alert('Grant failed');");
+                        out.println("location='controlServlet?action=listAccount';");
+                        out.println("</script>");
+                    }
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
         }
     }
 
