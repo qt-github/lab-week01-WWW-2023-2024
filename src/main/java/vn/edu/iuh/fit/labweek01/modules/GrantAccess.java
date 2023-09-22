@@ -4,13 +4,20 @@ public class GrantAccess {
     //account_id, role_id, is_grant, note
     private Account account_id;
     private Role role_id;
-    private boolean is_grant;
+    private Grant is_grant;
     private String note;
 
     public GrantAccess() {
     }
 
-    public GrantAccess(Account account_id, Role role_id, boolean is_grant, String note) {
+    public GrantAccess(Account account_id, Role role_id, Grant is_grant, String note) {
+        this.account_id = account_id;
+        this.role_id = role_id;
+        this.is_grant = is_grant;
+        this.note = note;
+    }
+
+    public GrantAccess(Role role_id, Account account_id, Grant is_grant, String note) {
         this.account_id = account_id;
         this.role_id = role_id;
         this.is_grant = is_grant;
@@ -25,11 +32,11 @@ public class GrantAccess {
         this.note = note;
     }
 
-    public boolean isIs_grant() {
+    public Grant isIs_grant() {
         return is_grant;
     }
 
-    public void setIs_grant(boolean is_grant) {
+    public void setIs_grant(Grant is_grant) {
         this.is_grant = is_grant;
     }
 

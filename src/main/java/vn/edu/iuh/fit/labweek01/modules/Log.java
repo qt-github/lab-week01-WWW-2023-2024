@@ -4,7 +4,7 @@ import java.sql.Date;
 
 public class Log {
     //id, account_id, login_tine, logout_time, notes
-    private long id;
+    private String id;
     private Account account_id;
     private Date login_time;
     private Date logout_time;
@@ -13,7 +13,7 @@ public class Log {
     public Log() {
     }
 
-    public Log(long id, Account account_id, Date login_time, Date logout_time, String notes) {
+    public Log(String id, Account account_id, Date login_time, Date logout_time, String notes) {
         this.id = id;
         this.account_id = account_id;
         this.login_time = login_time;
@@ -21,15 +21,26 @@ public class Log {
         this.notes = notes;
     }
 
+    public Log(String id, Account account_id, Date login_time, String notes) {
+        this.id = id;
+        this.account_id = account_id;
+        this.login_time = login_time;
+        this.notes = notes;
+    }
+
     public Account getAccount_id() {
         return account_id;
     }
 
-    public long getId() {
+    public void setAccount_id(Account account_id) {
+        this.account_id = account_id;
+    }
+
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

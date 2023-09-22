@@ -1,7 +1,6 @@
 package vn.edu.iuh.fit.labweek01.modules;
-
-
 import java.util.Objects;
+
 
 public class Account {
     //account_id, full_name, password, email, phone, status
@@ -24,12 +23,16 @@ public class Account {
         this.status = status;
     }
 
+    public Account(String account_id) {
+        this.account_id=account_id;
+    }
+
     public String getAccount_id() {
         return account_id;
     }
 
-    public void setAccount_id(int account_id) {
-        this.account_id = String.valueOf(account_id);
+    public void setAccount_id(String id) {
+        this.account_id = id;
     }
 
     public String getFull_name() {
