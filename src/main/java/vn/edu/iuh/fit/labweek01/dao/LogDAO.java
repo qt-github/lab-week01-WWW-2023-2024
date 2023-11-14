@@ -1,8 +1,8 @@
 package vn.edu.iuh.fit.labweek01.dao;
 
-import vn.edu.iuh.fit.labweek01.modules.Log;
-import vn.edu.iuh.fit.labweek01.modules.Account;
-import vn.edu.iuh.fit.labweek01.modules.Status;
+import vn.edu.iuh.fit.labweek01.models.Log;
+import vn.edu.iuh.fit.labweek01.models.Account;
+import vn.edu.iuh.fit.labweek01.models.Status;
 import vn.edu.iuh.fit.labweek01.utils.ConnectDB;
 
 import java.sql.*;

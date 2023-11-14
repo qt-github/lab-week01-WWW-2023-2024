@@ -1,5 +1,5 @@
 <%@ page import="java.util.List" %>
-<%@ page import="vn.edu.iuh.fit.labweek01.modules.Role" %><%--
+<%@ page import="vn.edu.iuh.fit.labweek01.models.Role" %><%--
   Created by IntelliJ IDEA.
   User: Administrator
   Date: 22-Sep-23

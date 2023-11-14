@@ -1,6 +1,6 @@
 <%@ page import="java.util.List" %>
-<%@ page import="vn.edu.iuh.fit.labweek01.modules.Account" %>
-<%@ page import="vn.edu.iuh.fit.labweek01.modules.Role" %><%--
+<%@ page import="vn.edu.iuh.fit.labweek01.models.Account" %>
+<%@ page import="vn.edu.iuh.fit.labweek01.models.Role" %><%--
   Created by IntelliJ IDEA.
   User: Administrator
   Date: 22-Sep-23
@@ -166,8 +166,8 @@
                                             <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeModel()">Close
                                             </button>
                                             <button type="button" class="btn btn-primary"
-                                                    onclick="saveRoleChanges('<%= account.getAccount_id() %>')">Save
-                                                changes
+                                                    onclick="saveRoleChanges('<%= account.getAccount_id() %>')">
+                                                Save changes
                                             </button>
                                         </div>
                                     </div>

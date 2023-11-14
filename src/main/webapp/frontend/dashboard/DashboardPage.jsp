@@ -1,4 +1,4 @@
-<%@ page import="vn.edu.iuh.fit.labweek01.modules.Role" %>
+<%@ page import="vn.edu.iuh.fit.labweek01.models.Role" %>
 <%@ page import="java.util.List" %><%--
   Created by IntelliJ IDEA.
   User: Administrator

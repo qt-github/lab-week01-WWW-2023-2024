@@ -1,4 +1,4 @@
-package vn.edu.iuh.fit.labweek01.modules;
+package vn.edu.iuh.fit.labweek01.models;
 
 
 public enum Status {

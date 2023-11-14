@@ -11,10 +11,10 @@ import vn.edu.iuh.fit.labweek01.dao.AccountDAO;
 import vn.edu.iuh.fit.labweek01.dao.GrantAccessDAO;
 import vn.edu.iuh.fit.labweek01.dao.LogDAO;
 import vn.edu.iuh.fit.labweek01.dao.RoleDAO;
-import vn.edu.iuh.fit.labweek01.modules.Account;
-import vn.edu.iuh.fit.labweek01.modules.Log;
-import vn.edu.iuh.fit.labweek01.modules.Role;
-import vn.edu.iuh.fit.labweek01.modules.Status;
+import vn.edu.iuh.fit.labweek01.models.Account;
+import vn.edu.iuh.fit.labweek01.models.Log;
+import vn.edu.iuh.fit.labweek01.models.Role;
+import vn.edu.iuh.fit.labweek01.models.Status;
 
 import java.io.IOException;
 import java.io.PrintWriter;

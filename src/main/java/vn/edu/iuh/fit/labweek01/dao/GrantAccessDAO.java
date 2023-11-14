@@ -1,6 +1,6 @@
 package vn.edu.iuh.fit.labweek01.dao;
 
-import vn.edu.iuh.fit.labweek01.modules.*;
+import vn.edu.iuh.fit.labweek01.models.*;
 import vn.edu.iuh.fit.labweek01.utils.ConnectDB;
 
 import java.sql.Connection;

@@ -1,4 +1,4 @@
-package vn.edu.iuh.fit.labweek01.modules;
+package vn.edu.iuh.fit.labweek01.models;
 
 public class GrantAccess {
     //account_id, role_id, is_grant, note

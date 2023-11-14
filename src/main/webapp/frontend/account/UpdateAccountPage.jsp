@@ -1,4 +1,4 @@
-<%@ page import="vn.edu.iuh.fit.labweek01.modules.Account" %><%--
+<%@ page import="vn.edu.iuh.fit.labweek01.models.Account" %><%--
   Created by IntelliJ IDEA.
   User: Administrator
   Date: 22-Sep-23
